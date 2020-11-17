@@ -83,7 +83,7 @@ var diffTests = []struct {
 		"",
 		"",
 		[]DiffRecord{
-			{"", Common},
+			{"", Common, 0, 0},
 		},
 		`<tr><td class="line-num">1</td><td><pre></pre></td><td><pre></pre></td><td class="line-num">1</td></tr>
 `,
@@ -93,7 +93,7 @@ var diffTests = []struct {
 		"same",
 		"same",
 		[]DiffRecord{
-			{"same", Common},
+			{"same", Common, 0, 0},
 		},
 		`<tr><td class="line-num">1</td><td><pre>same</pre></td><td><pre>same</pre></td><td class="line-num">1</td></tr>
 `,
@@ -109,10 +109,10 @@ two
 three
 `,
 		[]DiffRecord{
-			{"one", Common},
-			{"two", Common},
-			{"three", Common},
-			{"", Common},
+			{"one", Common, 0, 0},
+			{"two", Common, 1, 1},
+			{"three", Common, 2, 2},
+			{"", Common, 3, 3},
 		},
 		`<tr><td class="line-num">1</td><td><pre>one</pre></td><td><pre>one</pre></td><td class="line-num">1</td></tr>
 <tr><td class="line-num">2</td><td><pre>two</pre></td><td><pre>two</pre></td><td class="line-num">2</td></tr>
@@ -131,11 +131,11 @@ five
 three
 `,
 		[]DiffRecord{
-			{"one", Common},
-			{"two", LeftOnly},
-			{"five", RightOnly},
-			{"three", Common},
-			{"", Common},
+			{"one", Common, 0, 0},
+			{"two", LeftOnly, 1, 1},
+			{"five", RightOnly, 2, 1},
+			{"three", Common, 2, 2},
+			{"", Common, 3, 3},
 		},
 		`<tr><td class="line-num">1</td><td><pre>one</pre></td><td><pre>one</pre></td><td class="line-num">1</td></tr>
 <tr><td class="line-num">2</td><td class="deleted"><pre>two</pre></td><td></td><td class="line-num"></td></tr>
@@ -160,14 +160,14 @@ Wagner
 `,
 
 		[]DiffRecord{
-			{"Beethoven", Common},
-			{"Bach", Common},
-			{"Mozart", LeftOnly},
-			{"Brahms", RightOnly},
-			{"Chopin", Common},
-			{"Liszt", RightOnly},
-			{"Wagner", RightOnly},
-			{"", Common},
+			{"Beethoven", Common, 0, 0},
+			{"Bach", Common, 1, 1},
+			{"Mozart", LeftOnly, 2, 2},
+			{"Brahms", RightOnly, 3, 2},
+			{"Chopin", Common, 3, 3},
+			{"Liszt", RightOnly, 4, 4},
+			{"Wagner", RightOnly, 4, 5},
+			{"", Common, 4, 6},
 		},
 		`<tr><td class="line-num">1</td><td><pre>Beethoven</pre></td><td><pre>Beethoven</pre></td><td class="line-num">1</td></tr>
 <tr><td class="line-num">2</td><td><pre>Bach</pre></td><td><pre>Bach</pre></td><td class="line-num">2</td></tr>
@@ -195,17 +195,17 @@ legato
 allegro
 `,
 		[]DiffRecord{
-			{"adagio", LeftOnly},
-			{"vivace", LeftOnly},
-			{"adagio adagio", RightOnly},
-			{"staccato", RightOnly},
-			{"staccato legato", Common},
-			{"presto", LeftOnly},
-			{"lento", LeftOnly},
-			{"staccato", RightOnly},
-			{"legato", RightOnly},
-			{"allegro", RightOnly},
-			{"", Common},
+			{"adagio", LeftOnly, 0, 0},
+			{"vivace", LeftOnly, 1, 0},
+			{"adagio adagio", RightOnly, 2, 0},
+			{"staccato", RightOnly, 2, 1},
+			{"staccato legato", Common, 2, 2},
+			{"presto", LeftOnly, 3, 3},
+			{"lento", LeftOnly, 4, 3},
+			{"staccato", RightOnly, 5, 3},
+			{"legato", RightOnly, 5, 4},
+			{"allegro", RightOnly, 5, 5},
+			{"", Common, 5, 6},
 		},
 		`<tr><td class="line-num">1</td><td class="deleted"><pre>adagio</pre></td><td></td><td class="line-num"></td></tr>
 <tr><td class="line-num">2</td><td class="deleted"><pre>vivace</pre></td><td></td><td class="line-num"></td></tr>
