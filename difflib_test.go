@@ -78,6 +78,7 @@ var diffTests = []struct {
 	Seq2     string
 	Diff     []DiffRecord
 	HtmlDiff string
+	PPDiff   string
 }{
 	{
 		"",
@@ -86,6 +87,8 @@ var diffTests = []struct {
 			{"", Common, 0, 0},
 		},
 		`<tr><td class="line-num">1</td><td><pre></pre></td><td><pre></pre></td><td class="line-num">1</td></tr>
+`,
+`  0,  0   |
 `,
 	},
 
@@ -96,6 +99,8 @@ var diffTests = []struct {
 			{"same", Common, 0, 0},
 		},
 		`<tr><td class="line-num">1</td><td><pre>same</pre></td><td><pre>same</pre></td><td class="line-num">1</td></tr>
+`,
+		`  0,  0   |same
 `,
 	},
 
@@ -118,6 +123,11 @@ three
 <tr><td class="line-num">2</td><td><pre>two</pre></td><td><pre>two</pre></td><td class="line-num">2</td></tr>
 <tr><td class="line-num">3</td><td><pre>three</pre></td><td><pre>three</pre></td><td class="line-num">3</td></tr>
 <tr><td class="line-num">4</td><td><pre></pre></td><td><pre></pre></td><td class="line-num">4</td></tr>
+`,
+		`  0,  0   |one
+  1,  1   |two
+  2,  2   |three
+  3,  3   |
 `,
 	},
 
@@ -142,6 +152,12 @@ three
 <tr><td class="line-num"></td><td></td><td class="added"><pre>five</pre></td><td class="line-num">2</td></tr>
 <tr><td class="line-num">3</td><td><pre>three</pre></td><td><pre>three</pre></td><td class="line-num">3</td></tr>
 <tr><td class="line-num">4</td><td><pre></pre></td><td><pre></pre></td><td class="line-num">4</td></tr>
+`,
+		`  0,  0   |one
+  1,  1 - |five
+  2,  1 + |two
+  2,  2   |three
+  3,  3   |
 `,
 	},
 
@@ -177,6 +193,15 @@ Wagner
 <tr><td class="line-num"></td><td></td><td class="added"><pre>Liszt</pre></td><td class="line-num">5</td></tr>
 <tr><td class="line-num"></td><td></td><td class="added"><pre>Wagner</pre></td><td class="line-num">6</td></tr>
 <tr><td class="line-num">5</td><td><pre></pre></td><td><pre></pre></td><td class="line-num">7</td></tr>
+`,
+		`  0,  0   |Beethoven
+  1,  1   |Bach
+  2,  2 - |Brahms
+  3,  2 + |Mozart
+  3,  3   |Chopin
+  4,  4 - |Liszt
+  5,  4 - |Wagner
+  6,  4   |
 `,
 	},
 
@@ -219,6 +244,18 @@ allegro
 <tr><td class="line-num"></td><td></td><td class="added"><pre>allegro</pre></td><td class="line-num">6</td></tr>
 <tr><td class="line-num">6</td><td><pre></pre></td><td><pre></pre></td><td class="line-num">7</td></tr>
 `,
+		`  0,  0 - |adagio adagio
+  1,  0 - |staccato
+  2,  0 + |adagio
+  2,  1 + |vivace
+  2,  2   |staccato legato
+  3,  3 - |staccato
+  4,  3 - |legato
+  5,  3 - |allegro
+  6,  3 + |presto
+  6,  4 + |lento
+  6,  5   |
+`,
 	},
 }
 
@@ -237,6 +274,12 @@ func TestDiff(t *testing.T) {
 		if htmlDiff != test.HtmlDiff {
 			t.Errorf("%d. HtmlDiff(%v, %v) => %v, expected %v",
 				i, seq1, seq2, htmlDiff, test.HtmlDiff)
+		}
+
+		ppDiff := PPDiff(seq1, seq2)
+		if ppDiff != test.PPDiff {
+			t.Errorf("%d. PPDiff(%v, %v) => '%v', expected '%v'",
+				i, seq1, seq2, ppDiff, test.PPDiff)
 		}
 
 	}
