@@ -74,11 +74,12 @@ func TestNumEqualStartAndEndElements(t *testing.T) {
 }
 
 var diffTests = []struct {
-	Seq1     string
-	Seq2     string
-	Diff     []DiffRecord
-	HtmlDiff string
-	PPDiff   string
+	Seq1         string
+	Seq2         string
+	Diff         []DiffRecord
+	HtmlDiff     string
+	PPDiff       string
+	AnchoredDiff []DiffRecord
 }{
 	{
 		"",
@@ -88,8 +89,11 @@ var diffTests = []struct {
 		},
 		`<tr><td class="line-num">1</td><td><pre></pre></td><td><pre></pre></td><td class="line-num">1</td></tr>
 `,
-`  0,  0   |
+		`  0,  0   |
 `,
+		[]DiffRecord{
+			{"", Common, 0, 0},
+		},
 	},
 
 	{
@@ -102,6 +106,9 @@ var diffTests = []struct {
 `,
 		`  0,  0   |same
 `,
+		[]DiffRecord{
+			{"same", Common, 0, 0},
+		},
 	},
 
 	{
@@ -129,6 +136,12 @@ three
   2,  2   |three
   3,  3   |
 `,
+		[]DiffRecord{
+			{"one", Common, 0, 0},
+			{"two", Common, 1, 1},
+			{"three", Common, 2, 2},
+			{"", Common, 3, 3},
+		},
 	},
 
 	{
@@ -159,6 +172,13 @@ three
   2,  2   |three
   3,  3   |
 `,
+		[]DiffRecord{
+			{"one", Common, 0, 0},
+			{"two", LeftOnly, 1, 1},
+			{"five", RightOnly, 2, 1},
+			{"three", Common, 2, 2},
+			{"", Common, 3, 3},
+		},
 	},
 
 	{
@@ -203,6 +223,16 @@ Wagner
   5,  4 - |Wagner
   6,  4   |
 `,
+		[]DiffRecord{
+			{"Beethoven", Common, 0, 0},
+			{"Bach", Common, 1, 1},
+			{"Mozart", LeftOnly, 2, 2},
+			{"Brahms", RightOnly, 3, 2},
+			{"Chopin", Common, 3, 3},
+			{"Liszt", RightOnly, 4, 4},
+			{"Wagner", RightOnly, 4, 5},
+			{"", Common, 4, 6},
+		},
 	},
 
 	{
@@ -256,6 +286,86 @@ allegro
   6,  4 + |lento
   6,  5   |
 `,
+		[]DiffRecord{
+			{"adagio", LeftOnly, 0, 0},
+			{"vivace", LeftOnly, 1, 0},
+			{"adagio adagio", RightOnly, 2, 0},
+			{"staccato", RightOnly, 2, 1},
+			{"staccato legato", Common, 2, 2},
+			{"presto", LeftOnly, 3, 3},
+			{"lento", LeftOnly, 4, 3},
+			{"staccato", RightOnly, 5, 3},
+			{"legato", RightOnly, 5, 4},
+			{"allegro", RightOnly, 5, 5},
+			{"", Common, 5, 6},
+		},
+	},
+
+	{
+		`alpha
+beta
+gama
+delta
+beta
+pi
+`,
+		`solid
+liquid
+gas
+beta
+plasma
+`,
+		[]DiffRecord{
+			{"alpha", LeftOnly, 0, 0},
+			{"beta", LeftOnly, 1, 0},
+			{"gama", LeftOnly, 2, 0},
+			{"delta", LeftOnly, 3, 0},
+			{"solid", RightOnly, 4, 0},
+			{"liquid", RightOnly, 4, 1},
+			{"gas", RightOnly, 4, 2},
+			{"beta", Common, 4, 3},
+			{"pi", LeftOnly, 5, 4},
+			{"plasma", RightOnly, 6, 4},
+			{"", Common, 6, 5},
+		},
+		`<tr><td class="line-num">1</td><td class="deleted"><pre>alpha</pre></td><td></td><td class="line-num"></td></tr>
+<tr><td class="line-num">2</td><td class="deleted"><pre>beta</pre></td><td></td><td class="line-num"></td></tr>
+<tr><td class="line-num">3</td><td class="deleted"><pre>gama</pre></td><td></td><td class="line-num"></td></tr>
+<tr><td class="line-num">4</td><td class="deleted"><pre>delta</pre></td><td></td><td class="line-num"></td></tr>
+<tr><td class="line-num"></td><td></td><td class="added"><pre>solid</pre></td><td class="line-num">1</td></tr>
+<tr><td class="line-num"></td><td></td><td class="added"><pre>liquid</pre></td><td class="line-num">2</td></tr>
+<tr><td class="line-num"></td><td></td><td class="added"><pre>gas</pre></td><td class="line-num">3</td></tr>
+<tr><td class="line-num">5</td><td><pre>beta</pre></td><td><pre>beta</pre></td><td class="line-num">4</td></tr>
+<tr><td class="line-num">6</td><td class="deleted"><pre>pi</pre></td><td></td><td class="line-num"></td></tr>
+<tr><td class="line-num"></td><td></td><td class="added"><pre>plasma</pre></td><td class="line-num">5</td></tr>
+<tr><td class="line-num">7</td><td><pre></pre></td><td><pre></pre></td><td class="line-num">6</td></tr>
+`,
+		`  0,  0 - |solid
+  1,  0 - |liquid
+  2,  0 - |gas
+  3,  0 + |alpha
+  3,  1 + |beta
+  3,  2 + |gama
+  3,  3 + |delta
+  3,  4   |beta
+  4,  5 - |plasma
+  5,  5 + |pi
+  5,  6   |
+`,
+		[]DiffRecord{
+			{"alpha", LeftOnly, 0, 0},
+			{"beta", LeftOnly, 1, 0},
+			{"gama", LeftOnly, 2, 0},
+			{"delta", LeftOnly, 3, 0},
+			{"beta", LeftOnly, 4, 0},
+			{"pi", LeftOnly, 5, 0},
+			{"solid", RightOnly, 6, 0},
+			{"liquid", RightOnly, 6, 1},
+			{"gas", RightOnly, 6, 2},
+			{"beta", RightOnly, 6, 3},
+			{"plasma", RightOnly, 6, 4},
+			{"", Common, 6, 5},
+		},
 	},
 }
 
@@ -282,5 +392,10 @@ func TestDiff(t *testing.T) {
 				i, seq1, seq2, ppDiff, test.PPDiff)
 		}
 
+		anchoredDiff := AnchoredDiff(seq1, seq2)
+		if !reflect.DeepEqual(anchoredDiff, test.AnchoredDiff) {
+			t.Errorf("%d. AnchoredDiff(%v, %v) => %v, expected %v",
+				i, seq1, seq2, anchoredDiff, test.Diff)
+		}
 	}
 }
